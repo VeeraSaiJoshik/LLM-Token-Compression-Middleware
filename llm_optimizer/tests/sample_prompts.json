@@ -1,0 +1,115 @@
+[
+  {
+    "name": "1. Short Answer - Cache Only",
+    "prompt": "What is the capital of France?",
+    "models": ["gpt-4o-mini", "claude-3-5-haiku", "gemini-2-0-flash"],
+    "expected_strategies": ["cache"],
+    "note": "Simple question - only cache strategy should be applied"
+  },
+  {
+    "name": "2. Verbose Prompt - Compression + Cache",
+    "prompt": "Could you please kindly help me understand how photosynthesis works? I would really appreciate it if you could explain it in simple terms. Thank you so much for your assistance!",
+    "models": ["gpt-4o-mini", "claude-3-5-haiku"],
+    "expected_strategies": ["compression", "cache"],
+    "note": "Polite/verbose language triggers compression"
+  },
+  {
+    "name": "3. Whitespace Heavy - Whitespace + Cache",
+    "prompt": "What  are   the    main     differences     between      SQL       and        NoSQL         databases?          Please          explain.",
+    "models": ["gpt-4o-mini"],
+    "expected_strategies": ["whitespace", "compression", "cache"],
+    "note": "Excessive whitespace triggers whitespace optimizer"
+  },
+  {
+    "name": "4. JSON Data - TOON + Cache",
+    "prompt": "Analyze this sales data and identify top performing products:",
+    "json_data": {
+      "sales": [
+        {"date": "2025-01-01", "product": "Widget A", "amount": 1250.50, "region": "West"},
+        {"date": "2025-01-02", "product": "Widget B", "amount": 890.25, "region": "East"},
+        {"date": "2025-01-03", "product": "Widget A", "amount": 2100.00, "region": "West"},
+        {"date": "2025-01-04", "product": "Widget C", "amount": 450.75, "region": "North"},
+        {"date": "2025-01-05", "product": "Widget B", "amount": 1340.00, "region": "East"},
+        {"date": "2025-01-06", "product": "Widget A", "amount": 980.50, "region": "South"},
+        {"date": "2025-01-07", "product": "Widget C", "amount": 720.25, "region": "North"},
+        {"date": "2025-01-08", "product": "Widget B", "amount": 1560.00, "region": "West"}
+      ]
+    },
+    "models": ["gpt-4o", "claude-3-5-sonnet", "gemini-2-5-flash"],
+    "expected_strategies": ["toon", "cache"],
+    "note": "JSON data triggers TOON conversion (30-50% savings expected)"
+  },
+  {
+    "name": "5. Code Task - Cache Only (Conservative)",
+    "prompt": "Write a Python function that implements binary search",
+    "models": ["gpt-4o-mini", "claude-3-5-haiku"],
+    "expected_strategies": ["cache"],
+    "note": "Code task - compression skipped to preserve technical accuracy"
+  },
+  {
+    "name": "6. Cache Hit Test - Should Hit Cache",
+    "prompt": "What is the capital of France?",
+    "models": ["gpt-4o-mini"],
+    "expected_strategies": ["cache"],
+    "note": "Exact duplicate of test #1 - should hit semantic cache (100% savings)"
+  },
+  {
+    "name": "7. Verbose JSON Analysis - All Strategies",
+    "prompt": "Could you please kindly analyze   the   following   customer   data   and   provide   insights?   I   would   really   appreciate   detailed   recommendations!",
+    "json_data": {
+      "customers": [
+        {"id": 1001, "name": "Alice Johnson", "tier": "Premium", "spend": 5420.50, "country": "USA"},
+        {"id": 1002, "name": "Bob Smith", "tier": "Standard", "spend": 1250.00, "country": "Canada"},
+        {"id": 1003, "name": "Carol White", "tier": "Premium", "spend": 8900.25, "country": "UK"},
+        {"id": 1004, "name": "David Brown", "tier": "Basic", "spend": 450.75, "country": "Australia"},
+        {"id": 1005, "name": "Eve Davis", "tier": "Premium", "spend": 12340.00, "country": "USA"},
+        {"id": 1006, "name": "Frank Miller", "tier": "Standard", "spend": 2100.50, "country": "Germany"}
+      ]
+    },
+    "models": ["gpt-4o", "claude-3-5-sonnet"],
+    "expected_strategies": ["whitespace", "toon", "compression", "cache"],
+    "note": "Maximum optimization - combines whitespace, TOON, compression, and cache"
+  },
+  {
+    "name": "8. Product Catalog - TOON + Compression",
+    "prompt": "Please analyze the product catalog and identify top categories:",
+    "json_data": {
+      "products": [
+        {"id": "P001", "name": "Laptop Pro", "category": "Electronics", "price": 1299.99, "stock": 45},
+        {"id": "P002", "name": "Wireless Mouse", "category": "Electronics", "price": 29.99, "stock": 150},
+        {"id": "P003", "name": "Office Chair", "category": "Furniture", "price": 249.99, "stock": 30},
+        {"id": "P004", "name": "Standing Desk", "category": "Furniture", "price": 599.99, "stock": 20},
+        {"id": "P005", "name": "LED Monitor", "category": "Electronics", "price": 349.99, "stock": 60},
+        {"id": "P006", "name": "Keyboard RGB", "category": "Electronics", "price": 89.99, "stock": 100},
+        {"id": "P007", "name": "Bookshelf", "category": "Furniture", "price": 179.99, "stock": 25},
+        {"id": "P008", "name": "Desk Lamp", "category": "Furniture", "price": 39.99, "stock": 80}
+      ]
+    },
+    "models": ["gpt-4o-mini", "gemini-2-0-flash"],
+    "expected_strategies": ["toon", "compression", "cache"],
+    "note": "JSON with polite prompt triggers TOON + compression"
+  },
+  {
+    "name": "9. Data Extraction - TOON Focus",
+    "prompt": "Extract key metrics from this data:",
+    "json_data": {
+      "tickets": [
+        {"id": 1001, "customer": "Alice", "issue": "Login", "priority": "High", "status": "Open"},
+        {"id": 1002, "customer": "Bob", "issue": "Payment", "priority": "Critical", "status": "Open"},
+        {"id": 1003, "customer": "Carol", "issue": "Feature", "priority": "Low", "status": "Closed"},
+        {"id": 1004, "customer": "David", "issue": "Login", "priority": "High", "status": "In Progress"},
+        {"id": 1005, "customer": "Eve", "issue": "Bug", "priority": "Medium", "status": "Open"}
+      ]
+    },
+    "models": ["gpt-4o-mini", "claude-3-5-haiku"],
+    "expected_strategies": ["toon", "cache"],
+    "note": "Data extraction task - TOON for structured data"
+  },
+  {
+    "name": "10. Fact Check - Minimal Optimization",
+    "prompt": "What year did World War 2 end?",
+    "models": ["gpt-4o-mini", "claude-3-5-haiku", "gemini-2-0-flash"],
+    "expected_strategies": ["cache"],
+    "note": "Simple fact check - only cache, no other optimizations needed"
+  }
+]

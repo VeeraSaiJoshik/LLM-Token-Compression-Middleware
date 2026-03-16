@@ -1,0 +1,177 @@
+[
+  {
+    "name": "1. Simple Fact Question (Cache Only)",
+    "prompt": "What is the capital of Japan?",
+    "models": ["gpt-4o-mini", "claude-3-5-haiku"],
+    "note": "Expected: cache only - simple question, no other optimizations needed"
+  },
+  {
+    "name": "2. Polite Verbose Question (Compression)",
+    "prompt": "Could you please kindly explain to me how machine learning works? I would really appreciate it if you could provide a simple explanation. Thank you so much for your time and assistance!",
+    "models": ["gpt-4o-mini", "claude-3-5-haiku"],
+    "note": "Expected: compression + cache - lots of politeness markers to remove"
+  },
+  {
+    "name": "3. Excessive Whitespace (Whitespace Optimizer)",
+    "prompt": "What    are    the     main      differences       between        relational        and         document          databases?           Please           explain.",
+    "models": ["claude-3-5-haiku"],
+    "note": "Expected: whitespace + compression + cache - excessive spacing triggers whitespace optimizer"
+  },
+  {
+    "name": "4. Small JSON Dataset (TOON Conversion)",
+    "prompt": "Analyze the sales performance:",
+    "json_data": {
+      "quarterly_sales": [
+        {"quarter": "Q1", "revenue": 125000, "units": 450, "region": "North America"},
+        {"quarter": "Q2", "revenue": 138000, "units": 520, "region": "North America"},
+        {"quarter": "Q3", "revenue": 142000, "units": 580, "region": "North America"},
+        {"quarter": "Q4", "revenue": 156000, "units": 630, "region": "North America"}
+      ]
+    },
+    "models": ["gpt-4o-mini", "claude-3-5-haiku"],
+    "note": "Expected: toon + cache - structured JSON data should trigger TOON (30-50% savings)"
+  },
+  {
+    "name": "5. Large JSON Dataset (Maximum TOON Benefit)",
+    "prompt": "Generate insights from this customer transaction data:",
+    "json_data": {
+      "transactions": [
+        {"id": "TXN001", "customer_id": "C1001", "product": "Laptop", "amount": 1299.99, "date": "2025-01-15", "status": "completed", "payment_method": "credit_card"},
+        {"id": "TXN002", "customer_id": "C1002", "product": "Mouse", "amount": 29.99, "date": "2025-01-15", "status": "completed", "payment_method": "paypal"},
+        {"id": "TXN003", "customer_id": "C1003", "product": "Keyboard", "amount": 89.99, "date": "2025-01-16", "status": "pending", "payment_method": "credit_card"},
+        {"id": "TXN004", "customer_id": "C1001", "product": "Monitor", "amount": 349.99, "date": "2025-01-16", "status": "completed", "payment_method": "credit_card"},
+        {"id": "TXN005", "customer_id": "C1004", "product": "Headphones", "amount": 149.99, "date": "2025-01-17", "status": "completed", "payment_method": "debit_card"},
+        {"id": "TXN006", "customer_id": "C1005", "product": "Webcam", "amount": 79.99, "date": "2025-01-17", "status": "refunded", "payment_method": "paypal"},
+        {"id": "TXN007", "customer_id": "C1002", "product": "USB Cable", "amount": 12.99, "date": "2025-01-18", "status": "completed", "payment_method": "credit_card"},
+        {"id": "TXN008", "customer_id": "C1006", "product": "SSD Drive", "amount": 199.99, "date": "2025-01-18", "status": "completed", "payment_method": "credit_card"},
+        {"id": "TXN009", "customer_id": "C1003", "product": "Chair", "amount": 299.99, "date": "2025-01-19", "status": "pending", "payment_method": "paypal"},
+        {"id": "TXN010", "customer_id": "C1007", "product": "Desk", "amount": 449.99, "date": "2025-01-19", "status": "completed", "payment_method": "debit_card"}
+      ]
+    },
+    "models": ["gpt-4o", "claude-3-5-sonnet"],
+    "note": "Expected: toon + cache - large uniform dataset = maximum TOON benefit"
+  },
+  {
+    "name": "6. Code Generation Task (Conservative - Cache Only)",
+    "prompt": "Write a Python function that implements a binary search algorithm with proper error handling",
+    "models": ["gpt-4o-mini", "claude-3-5-haiku"],
+    "note": "Expected: cache only - code task triggers conservative mode (accuracy first)"
+  },
+  {
+    "name": "7. Code with Verbose Request (Conservative)",
+    "prompt": "Could you please write a function to sort an array? I would really appreciate detailed comments!",
+    "models": ["claude-3-5-haiku"],
+    "note": "Expected: cache only - code task = conservative mode, compression skipped to preserve technical accuracy"
+  },
+  {
+    "name": "8. All Strategies Combined (Maximum Optimization)",
+    "prompt": "Could   you    please    kindly    analyze     this     customer     data     and      provide      comprehensive      insights?      I      would      really      appreciate      detailed      recommendations!",
+    "json_data": {
+      "customers": [
+        {"id": 1001, "name": "Alice Johnson", "tier": "Premium", "lifetime_value": 15420.50, "join_date": "2023-01-15", "country": "USA", "active": true},
+        {"id": 1002, "name": "Bob Smith", "tier": "Standard", "lifetime_value": 3250.00, "join_date": "2023-03-22", "country": "Canada", "active": true},
+        {"id": 1003, "name": "Carol White", "tier": "Premium", "lifetime_value": 22900.25, "join_date": "2022-11-10", "country": "UK", "active": true},
+        {"id": 1004, "name": "David Brown", "tier": "Basic", "lifetime_value": 850.75, "join_date": "2024-05-18", "country": "Australia", "active": false},
+        {"id": 1005, "name": "Eve Davis", "tier": "Premium", "lifetime_value": 31240.00, "join_date": "2022-08-05", "country": "USA", "active": true},
+        {"id": 1006, "name": "Frank Miller", "tier": "Standard", "lifetime_value": 5100.50, "join_date": "2023-09-12", "country": "Germany", "active": true},
+        {"id": 1007, "name": "Grace Lee", "tier": "Premium", "lifetime_value": 18900.00, "join_date": "2023-02-28", "country": "Singapore", "active": true},
+        {"id": 1008, "name": "Henry Wilson", "tier": "Basic", "lifetime_value": 1200.00, "join_date": "2024-07-03", "country": "USA", "active": true}
+      ]
+    },
+    "models": ["gpt-4o", "claude-sonnet-4-5"],
+    "note": "Expected: ALL strategies (whitespace + toon + compression + cache) - maximum optimization"
+  },
+  {
+    "name": "9. Data Extraction Task (TOON Focus)",
+    "prompt": "Extract key metrics and trends from the support ticket data:",
+    "json_data": {
+      "tickets": [
+        {"id": 1001, "customer": "Alice", "issue": "Login problem", "priority": "High", "status": "Open", "created": "2025-01-20", "assigned_to": "Team A"},
+        {"id": 1002, "customer": "Bob", "issue": "Payment failed", "priority": "Critical", "status": "In Progress", "created": "2025-01-20", "assigned_to": "Team B"},
+        {"id": 1003, "customer": "Carol", "issue": "Feature request", "priority": "Low", "status": "Closed", "created": "2025-01-19", "assigned_to": "Team C"},
+        {"id": 1004, "customer": "David", "issue": "Login problem", "priority": "High", "status": "In Progress", "created": "2025-01-19", "assigned_to": "Team A"},
+        {"id": 1005, "customer": "Eve", "issue": "Bug report", "priority": "Medium", "status": "Open", "created": "2025-01-18", "assigned_to": "Team A"},
+        {"id": 1006, "customer": "Frank", "issue": "Login problem", "priority": "High", "status": "Closed", "created": "2025-01-18", "assigned_to": "Team A"},
+        {"id": 1007, "customer": "Grace", "issue": "Payment failed", "priority": "Critical", "status": "Open", "created": "2025-01-17", "assigned_to": "Team B"},
+        {"id": 1008, "customer": "Henry", "issue": "Account deletion", "priority": "Medium", "status": "Closed", "created": "2025-01-17", "assigned_to": "Team C"}
+      ]
+    },
+    "models": ["gpt-4o-mini", "claude-3-5-haiku"],
+    "note": "Expected: toon + cache - data extraction task with structured data"
+  },
+  {
+    "name": "10. Cache Hit Test (100% Savings)",
+    "prompt": "What is the capital of Japan?",
+    "models": ["gpt-4o-mini", "claude-3-5-haiku"],
+    "note": "Expected: cache HIT - duplicate of test #1, should hit semantic cache (100% cost savings)"
+  },
+  {
+    "name": "11. Multi-Model Comparison - Simple",
+    "prompt": "Explain quantum entanglement in one sentence",
+    "models": ["gpt-4o-mini", "claude-3-5-haiku", "gemini-2-0-flash"],
+    "note": "Expected: cache only - simple question across multiple models"
+  },
+  {
+    "name": "12. Multi-Model Comparison - JSON",
+    "prompt": "Identify the top 3 products by revenue:",
+    "json_data": {
+      "products": [
+        {"name": "Product A", "revenue": 45000, "units_sold": 230},
+        {"name": "Product B", "revenue": 67000, "units_sold": 340},
+        {"name": "Product C", "revenue": 23000, "units_sold": 120},
+        {"name": "Product D", "revenue": 89000, "units_sold": 450},
+        {"name": "Product E", "revenue": 34000, "units_sold": 180}
+      ]
+    },
+    "models": ["gpt-4o-mini", "claude-3-5-haiku"],
+    "note": "Expected: toon + cache - JSON data across multiple models"
+  },
+  {
+    "name": "13. Nested JSON Structure (TOON Stress Test)",
+    "prompt": "Summarize this organizational structure:",
+    "json_data": {
+      "departments": [
+        {
+          "name": "Engineering",
+          "head": "Jane Doe",
+          "budget": 2500000,
+          "teams": [
+            {"name": "Backend", "size": 12, "tech_stack": ["Python", "Go", "PostgreSQL"]},
+            {"name": "Frontend", "size": 8, "tech_stack": ["React", "TypeScript", "Next.js"]},
+            {"name": "DevOps", "size": 5, "tech_stack": ["Kubernetes", "AWS", "Terraform"]}
+          ]
+        },
+        {
+          "name": "Sales",
+          "head": "John Smith",
+          "budget": 1800000,
+          "teams": [
+            {"name": "Enterprise", "size": 15, "tech_stack": ["Salesforce", "HubSpot"]},
+            {"name": "SMB", "size": 10, "tech_stack": ["Salesforce", "Outreach"]}
+          ]
+        }
+      ]
+    },
+    "models": ["gpt-4o-mini", "claude-3-5-haiku"],
+    "note": "Expected: toon + cache - nested JSON structure tests TOON's capability with complex data"
+  },
+  {
+    "name": "14. Technical Documentation (Conservative Compression)",
+    "prompt": "Please explain how to implement OAuth 2.0 authentication flow with refresh tokens and proper security measures",
+    "models": ["gpt-4o-mini", "claude-3-5-haiku"],
+    "note": "Expected: compression + cache - technical but not code generation, safe compression"
+  },
+  {
+    "name": "15. Mixed Content (Verbose + Short JSON)",
+    "prompt": "Could you please kindly review this configuration and let me know if there are any issues? I would really appreciate your help!",
+    "json_data": {
+      "config": {
+        "timeout": 30,
+        "retries": 3,
+        "endpoints": ["api.example.com", "backup.example.com"]
+      }
+    },
+    "models": ["gpt-4o-mini", "claude-3-5-haiku"],
+    "note": "Expected: toon + compression + cache - combines verbose prompt with small JSON"
+  }
+]
