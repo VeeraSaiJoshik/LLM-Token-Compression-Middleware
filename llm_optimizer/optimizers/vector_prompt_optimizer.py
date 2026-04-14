@@ -1,18 +1,11 @@
 import math
 from typing import List
-import click
 from sentence_transformers import SentenceTransformer, util
 import asyncio
 import matplotlib.pyplot as plt
 from tqdm import tqdm 
-import numpy as np
-import time
-import nltk
-from nltk.tokenize import word_tokenize
+from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.tag import pos_tag
-
-from rich.console import Console
-from rich.table import Table
 
 async def tag_pos(prompt: str):
     tokenized_words = word_tokenize(prompt)
@@ -20,64 +13,68 @@ async def tag_pos(prompt: str):
 
     return tagged_words
 
-async def chunk_word_optimizations(tagged_words: tuple[str, str]):
-    NOUNS = ["NN", "NNS", "NNP", "NNPS"]
-    ADJECTIVES = ["JJ", "JJR", "JJS"]
-    EXTRANEOUS = ["POS"]
+async def chunk_word_optimizations(prompt: str):
+    chunked_sentences = sent_tokenize(prompt)
 
-    proper_nouns = []
-    words = []
-    is_proper_noun = False
+    for sentence in chunked_sentences:
+        tagged_words = await tag_pos(sentence)
+        NOUNS = ["NN", "NNS", "NNP", "NNPS"]
+        ADJECTIVES = ["JJ", "JJR", "JJS"]
+        EXTRANEOUS = ["POS"]
 
-    buffer = []
-    i = 0
-    for word, word_type in tagged_words:
-        if word_type in NOUNS or word_type in ADJECTIVES or word_type in EXTRANEOUS: 
-            if word_type in ["NNP", "NNPS"]: is_proper_noun = True
-            buffer.append(word)
-        else : 
-            if buffer != []:
-                if not is_proper_noun :
-                    words.append(" ".join(buffer))
-                    i += 1
-                else : 
-                    proper_nouns.append((
-                        proper_nouns[-1][0] + 0.001 
-                            if len(proper_nouns) != 0 and int(proper_nouns[-1][0]) == i -1 else i - 1 + 0.001, 
-                        " ".join(buffer)
-                    ))
-                    is_proper_noun = False
-                buffer = []
-            else : 
-                words.append(word)
-                i += 1
-    if buffer != []:
-        if not is_proper_noun :
-            words.append(" ".join(buffer))
-            i += 1
-        else : 
-            proper_nouns.append((
-                proper_nouns[-1][0] + 0.001 
-                    if len(proper_nouns) != 0 and int(proper_nouns[-1][0]) == i -1 else i - 1 + 0.001, 
-                " ".join(buffer)
-            ))
+        proper_nouns = []
+        words = []
+        is_proper_noun = False
+
         buffer = []
+        i = 0
+        for word, word_type in tagged_words:
+            if word_type in NOUNS or word_type in ADJECTIVES or word_type in EXTRANEOUS: 
+                if word_type in ["NNP", "NNPS"]: is_proper_noun = True
+                buffer.append(word)
+            else : 
+                if buffer != []:
+                    if not is_proper_noun :
+                        words.append(" ".join(buffer))
+                        i += 1
+                    else : 
+                        proper_nouns.append((
+                            proper_nouns[-1][0] + 0.001 
+                                if len(proper_nouns) != 0 and int(proper_nouns[-1][0]) == i -1 else i - 1 + 0.001, 
+                            " ".join(buffer)
+                        ))
+                        is_proper_noun = False
+                    buffer = []
+                else : 
+                    words.append(word)
+                    i += 1
+        
+        print(words)
+        if buffer != []:
+            if not is_proper_noun :
+                words.append(" ".join(buffer))
+                i += 1
+            else : 
+                proper_nouns.append((
+                    proper_nouns[-1][0] + 0.001 
+                        if len(proper_nouns) != 0 and int(proper_nouns[-1][0]) == i -1 else i - 1 + 0.001, 
+                    " ".join(buffer)
+                ))
+            buffer = []
 
-    chunked_words_list = []
+        chunked_words_list = []
 
-    for i in range(len(words)):
-        before = " ".join(words[0: i])
-        after = " ".join(words[i + 1:])
-        if before and after:
-            chunked_words_list.append(before + " " + after)
-        elif before:
-            chunked_words_list.append(before)
-        elif after:
-            chunked_words_list.append(after)
-    
-    print("here are the proper nouns", proper_nouns)
-
-    return chunked_words_list, proper_nouns, words
+        for i in range(len(words)):
+            before = " ".join(words[0: i])
+            after = " ".join(words[i + 1:])
+            if before and after:
+                chunked_words_list.append(before + " " + after)
+            elif before:
+                chunked_words_list.append(before)
+            elif after:
+                chunked_words_list.append(after)
+        print(chunked_words_list)
+        #return chunked_words_list, proper_nouns, words
 
 async def get_sentence_transformation(prompt: str, model: SentenceTransformer):
     return await asyncio.to_thread(model.encode, prompt, convert_to_tensor=True)
@@ -127,9 +124,9 @@ def find_maximas(data):
 
 async def near_neighbor_vector_optimization(
     prompt: str,
+    model: SentenceTransformer,
     sigma: float = 2.0,
 ) -> List[float]:
-    model: SentenceTransformer = SentenceTransformer("all-MiniLM-L6-v2")
     words = prompt.split()
     n = len(words)
 
@@ -161,8 +158,7 @@ async def near_neighbor_vector_optimization(
 
 
 async def vector_prompt_optimizer(prompt: str, model: SentenceTransformer, log: bool = False):
-    pos_tag = await tag_pos(prompt)
-    chunked, proper_nouns, words = await chunk_word_optimizations(pos_tag)
+    chunked, proper_nouns, words = await chunk_word_optimizations(prompt)
 
     tasks = [get_sentence_transformation(prompt, model)] + [
         get_sentence_transformation(source, model) for source in chunked
@@ -232,87 +228,55 @@ async def vector_prompt_optimizer(prompt: str, model: SentenceTransformer, log: 
 def vector_prompt_optimizer_sync(prompt: str, model: SentenceTransformer, log: bool = False):
     return asyncio.run(vector_prompt_optimizer(prompt, model, log))
 
-console = Console()
+dummy_text = """Overview
 
-@click.group()
-def cli():
-    """LLM Cost Optimization Testing Tool"""
-    pass
+AARP is the nation's largest nonprofit, nonpartisan organization dedicated to empowering people 50 and older to choose how they live as they age. With a nationwide presence, AARP strengthens communities and advocates for what matters most to the more than 100 million Americans 50-plus and their families health and financial security, and personal fulfillment. AARP also works for individuals in the marketplace by sparking new solutions and allowing carefully chosen, high-quality products and services to carry the AARP name. As a trusted source for news and information, AARP produces the nation's largest-circulation publications, AARP The Magazine and the AARP Bulletin.
 
-@cli.command()
-@click.argument('prompt')
-def single_prompt(prompt):
-    model = SentenceTransformer("sentence-transformers/paraphrase-MiniLM-L12-v2")
-    nltk.download('punkt')
-    nltk.download('punkt_tab')
-    nltk.download('averaged_perceptron_tagger')
-    nltk.download('averaged_perceptron_tagger_eng')
-    
-    start = time.time()
-    
-    asyncio.run(
-        vector_prompt_optimizer(prompt, model, True)
-    )
-    end = time.time()
-    print("Total time", end-start)
+Ready to dive into the world of video production and make a meaningful impact? As an Editorial and Video Production Intern at AARP Studios, you’ll support broadcast and video initiatives while helping shape storytelling that brings people together and drives engagement across our channels. You’ll gain hands-on experience in video capture, writing, editing, and content strategy, all while learning how AARP leverages its diverse media platforms. If you’re creative, curious, and eager to build your career in video production, this role offers an excellent opportunity to grow both your skills and your confidence. This paid internship begins in Summer 2026 and may run until September.
 
-@cli.command()
-def time_graph():
-    model = SentenceTransformer("sentence-transformers/paraphrase-MiniLM-L12-v2")
-    nltk.download('punkt')
-    nltk.download('punkt_tab')
-    nltk.download('averaged_perceptron_tagger')
-    nltk.download('averaged_perceptron_tagger_eng')
-    
-    times = []
-    sample_prompts = [
-        "Explain the concept of recursion in simple terms.",
-        "Generate three creative names for a futuristic electric scooter brand.",
-        "Summarize the main themes of any popular fantasy novel without giving spoilers.",
-        "Write a friendly reminder email asking a coworker to share the project files before noon tomorrow.",
-        "Describe how photosynthesis works, focusing on why it is essential for sustaining life on Earth.",
-        "Create a short motivational message for students preparing for their final exams next week.",
-        "Give a detailed comparison between solar power and wind power, including cost, efficiency, and environmental impact considerations.",
-        "Provide step-by-step instructions for organizing a small community event, covering planning, promotion, budgeting, and volunteer coordination.",
-        "Write a brief story about a traveler who discovers an unexpected message hidden inside an ancient artifact during a desert expedition.",
-        "Explain how machine learning models are trained, including data preprocessing, feature selection, training algorithms, and evaluating performance metrics."
-    ]
-    results_prompts = []
-    for prompt in tqdm(sample_prompts) :
-        start = time.time()
-        results_prompts.append(asyncio.run(vector_prompt_optimizer(prompt, model, False)))
-        end = time.time()
+Responsibilities
 
-        times.append(end - start)
+Support the creation of video content for AARP.Org and social media channels, including livestreaming, short and long-form video
+Assist producers and editors with research, scripting, video editing, fact-checking, logging footage, and social media support
+Help brainstorm and execute creative ideas that foster social connection and engagement across programs
+Assist with quality assurance of content, links, video, and post copy prior to posting and publishing
 
-    table = Table(title="prompt compression")
-    table.add_column("Before")
-    table.add_column("After")
+Qualifications
 
-    for before, after in zip(sample_prompts, results_prompts):
-        table.add_row(before, after)
-    
-    console.print(table)
-    
-    plt.figure()
-    plt.plot(
-        list([len(prompt.split(" ")) for prompt in sample_prompts]),
-        times
-    )
-    plt.xlabel("Prompt Word Length")
-    plt.ylabel("Processing Time")
-    plt.title("Time Graph")
+Must be enrolled in a degree program at an accredited college/university, rising undergraduate juniors or seniors, graduate students, or post-doctoral students, and remain academically enrolled throughout the internship, or must have previously graduated from college and enrolled in a continuing education program
+Must be a self-starter with the ability to stay organized, manage multiple tasks, and meet deadlines
+Must be extremely detail-oriented
+Basic experience with Adobe Premiere and Photoshop
+Basic understanding of TikTok, LinkedIn, Facebook, Instagram, and YouTube
 
-    plt.figure()
-    plt.plot(
-        list([len(prompt.split(" ")) for prompt in sample_prompts]),
-        list(sorted([(len(after) - len(before))/(len(before))for before, after in zip(sample_prompts, results_prompts)]))
-    )
-    plt.xlabel("Prompt Word Length")
-    plt.ylabel("Optimization")
-    plt.title("Time Graph")
-    plt.show()
-    print("Total time", end-start)
+AARP will not sponsor an employment visa for this position at this time.
+
+Additional Requirements
+
+Regular and reliable job attendance
+Exhibit respect and understanding of others to maintain professional relationships
+In office/open office environment with the ability to work effectively surrounded by moderate noise
+
+Hybrid Work Environment
+
+AARP observes Mondays and Fridays as remote workdays, except for essential functions. Remote work can only be done within the United States and its territories.
+
+Compensation And Benefits
+
+The hourly range is $18 for undergraduates, $21 for graduate students, and $28 for Ph.D. candidates. Internships are non-exempt positions and are not eligible for employee benefits.
+
+Equal Employment Opportunity
+
+AARP is an equal opportunity employer committed to hiring a diverse workforce and sustaining an inclusive culture. AARP does not discriminate on the basis of race, ethnicity, religion, sex, color, national origin, age, sexual orientation, gender identity or expression, mental or physical disability, genetic information, veteran status, or on any other basis prohibited by applicable law.
+
+Seniority level
+Not Applicable
+Employment type
+Internship
+Job function
+Marketing, Public Relations, and Writing/Editing
+Industries
+Non-profit Organizations"""
 
 if __name__ == "__main__":
-    cli()
+    asyncio.run(chunk_word_optimizations(dummy_text))
